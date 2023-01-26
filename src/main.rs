@@ -1,5 +1,6 @@
 pub mod uart;
 pub mod tcpip;
+pub mod settings;
 
 use std::io::{Error};
 use std::time::{Duration};
