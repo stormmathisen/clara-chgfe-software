@@ -20,13 +20,15 @@
         Ok(written)
     }
 
-    pub fn receive_byte() -> Result<[u8; 1], Error> {
+    pub fn receive_byte(fd: &mut Box<dyn SerialPort>) -> Result<[u8; 1], Error> {
         let mut byte:[u8; 1] = [0];
+        fd.read_exact(&mut byte)?;
         Ok(byte)
     }
 
 
-    pub fn receive_bytes() -> Result<Vec<u8>, Error> {
+    pub fn receive_bytes(fd: &mut Box<dyn SerialPort>) -> Result<Vec<u8>, Error> {
         let mut bytes:Vec<u8> = Vec::new();
+        fd.read_exact(&mut bytes)?;
         Ok(bytes)
     }
