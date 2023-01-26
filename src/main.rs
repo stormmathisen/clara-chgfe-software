@@ -26,8 +26,6 @@ fn main() -> Result<(), Error> {
         if count > 3600 {
             break;
         }
-
     }
-
     Ok(())
 }
