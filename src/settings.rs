@@ -144,6 +144,17 @@ impl Settings {
         bytes.push(byte);
         Ok(bytes)
     }
+    pub fn hack(&mut self) -> Result<(), Error> {
+        let now = std::time::SystemTime::now();
+        let ts = now.duration_since(std::time::UNIX_EPOCH).unwrap();
+        let secs = ts.as_secs() as i128;
+        let nanos = ts.as_nanos() - (secs * 1e9 as i128) as u128;
+        self.meta.last_changed = [
+            secs,
+            nanos as i128
+        ];
+        Ok(())
+    }
 }
 
 impl Default for Settings {
@@ -162,6 +173,5 @@ impl Default for Settings {
 /*TODO: Implement following functions:
 Convert to send_bytes
 Update timestamp
-Setters and getters
 Iterators
 */
