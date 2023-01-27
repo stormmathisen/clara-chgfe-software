@@ -1,5 +1,6 @@
 use std::string;
 use serde::{Serialize, Deserialize};
+use std::io::Error;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub enum CalibrationReference {
@@ -46,6 +47,7 @@ pub enum IOReference {
 #[derive(Serialize, Deserialize, Debug)]
 
 pub enum Integrator {
+    FB0,
     FB1,
     FB2,
     FB3,
@@ -75,6 +77,75 @@ pub struct Settings {
     pub meta: Metadata
 }
 
+impl Settings {
+    pub fn to_bytes(&self) -> Result<Vec<u8>, Error> {
+        let mut bytes:Vec<u8> = Vec::new();
+
+        //Convert calibration
+        let mut byte: u8 = 0;
+        match self.calibration.reference {
+            CalibrationReference::REF500mV => {byte = byte | 0x01},
+            CalibrationReference::REF1000mV => {byte = byte | 0x02},
+            CalibrationReference::REF2048mV => {byte = byte | 0x04},
+            CalibrationReference::REF4096mV => {byte = byte | 0x08},
+        }
+        bytes.push(byte);
+        byte = 0;
+        byte = self.calibration.trigger;
+        bytes.push(byte);
+        byte = 0;
+        byte = ((self.calibration.offset & 0xFF00) >> 8) as u8;
+        bytes.push(byte);
+        byte = 0;
+        byte = (self.calibration.offset & 0x00FF) as u8;
+        bytes.push(byte);
+        //Convert IO
+        byte = 0;
+        match self.io.input {
+            Input::EXT => byte = byte | 0x01,
+            Input::ALT => byte = byte | 0x02,
+            Input::CAL => byte = byte | 0x04,
+        }
+        match self.io.output {
+            Output::LOCAL => byte = byte | 0x08,
+            Output::TERM => byte = byte | 0x10,
+        }
+        match self.io.reference {
+            IOReference::REF500mV => byte = byte | 0x20,
+            IOReference::REF1000mV => byte = byte | 0x40,
+            IOReference::REFMANUAL => byte = byte | 0x80,
+        }
+        bytes.push(byte);
+        byte = 0;
+        //Convert Integrator
+        match self.integrator {
+            Integrator::FB0 => byte = byte | 0x01,
+            Integrator::FB1 => byte = byte | 0x02,
+            Integrator::FB2 => byte = byte | 0x04,
+            Integrator::FB3 => byte = byte | 0x08,
+            Integrator::FB4 => byte = byte | 0x10,
+            Integrator::FB5 => byte = byte | 0x20
+        }
+        bytes.push(byte);
+        byte = 0;
+        //Convert Power
+        match self.power.positive {
+            true => byte = byte | 0x01,
+            false => (),
+        }
+        match self.power.negative {
+            true => byte = byte | 0x02,
+            false => (),
+        }
+        match self.power.integrator {
+            true => byte = byte | 0x04,
+            false => (),
+        }
+        bytes.push(byte);
+        Ok(bytes)
+    }
+}
+
 impl Default for Settings {
     fn default() -> Settings {
         Settings {
@@ -86,6 +157,7 @@ impl Default for Settings {
         }
     }
 }
+
 
 /*TODO: Implement following functions:
 Convert to send_bytes
