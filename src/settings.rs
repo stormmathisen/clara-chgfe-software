@@ -1,67 +1,88 @@
 use std::string;
+use serde::{Serialize, Deserialize};
 
-enum CalibrationReference {
+#[derive(Serialize, Deserialize, Debug)]
+pub enum CalibrationReference {
     REF500mV,
     REF1000mV,
     REF2048mV,
     REF4096mV
 }
-struct Calibration {
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Calibration {
     reference: CalibrationReference,
     level: u8,
     trigger: u8,
     offset: u16
 }
+#[derive(Serialize, Deserialize, Debug)]
 
-struct InputOutput {
+pub struct InputOutput {
     input: Input,
     output: Output,
     reference: IOReference
 }
+#[derive(Serialize, Deserialize, Debug)]
 
-enum Input {
+pub enum Input {
     EXT,
     ALT,
     CAL
 }
+#[derive(Serialize, Deserialize, Debug)]
 
-enum Output {
+pub enum Output {
     LOCAL,
     TERM
 }
+#[derive(Serialize, Deserialize, Debug)]
 
-enum IOReference {
+pub enum IOReference {
     REF500mV,
     REF1000mV,
     REFMANUAL
 }
+#[derive(Serialize, Deserialize, Debug)]
 
-enum Integrator {
+pub enum Integrator {
     FB1,
     FB2,
     FB3,
     FB4,
     FB5
 }
+#[derive(Serialize, Deserialize, Debug)]
 
-struct Power {
+pub struct Power {
     positive: bool,
     negative: bool,
     integrator: bool
 }
+#[derive(Serialize, Deserialize, Debug)]
 
-struct Metadata {
+pub struct Metadata {
     last_changed: [i128; 2],
-    device_name: std::string::String,
-    device_location: std::string::String
+    device_name: String,
+    device_location: String
+}
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Settings {
+    pub calibration: Calibration,
+    pub io: InputOutput,
+    pub integrator: Integrator,
+    pub power: Power,
+    pub meta: Metadata
 }
 
-struct Settings {
-    calibration: Calibration,
-    io: InputOutput,
-    integrator: Integrator,
-    power: Power,
-    meta: Metadata
+impl Default for Settings {
+    fn default() -> Settings {
+        Settings {
+            calibration: Calibration { reference: CalibrationReference::REF500mV, level: 255, trigger: 1, offset: 1 },
+            io: InputOutput { input: Input::EXT, output: Output::TERM, reference: IOReference::REF500mV },
+            integrator: Integrator::FB5,
+            power: Power { positive: true, negative: true, integrator: true },
+            meta: Metadata { last_changed: [-1, -1], device_name: "".to_string(), device_location: "".to_string() }
+        }
+    }
 }
-
-//TODO: Add new function, add serialize derivations
