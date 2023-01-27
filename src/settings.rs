@@ -12,17 +12,17 @@ pub enum CalibrationReference {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Calibration {
-    reference: CalibrationReference,
-    level: u8,
-    trigger: u8,
-    offset: u16
+    pub reference: CalibrationReference,
+    pub level: u8,
+    pub trigger: u8,
+    pub offset: u16
 }
 #[derive(Serialize, Deserialize, Debug)]
 
 pub struct InputOutput {
-    input: Input,
-    output: Output,
-    reference: IOReference
+    pub input: Input,
+    pub output: Output,
+    pub reference: IOReference
 }
 #[derive(Serialize, Deserialize, Debug)]
 
@@ -57,16 +57,16 @@ pub enum Integrator {
 #[derive(Serialize, Deserialize, Debug)]
 
 pub struct Power {
-    positive: bool,
-    negative: bool,
-    integrator: bool
+    pub positive: bool,
+    pub negative: bool,
+    pub integrator: bool
 }
 #[derive(Serialize, Deserialize, Debug)]
 
 pub struct Metadata {
-    last_changed: [i128; 2],
-    device_name: String,
-    device_location: String
+    pub last_changed: [i128; 2],
+    pub device_name: String,
+    pub device_location: String
 }
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Settings {
