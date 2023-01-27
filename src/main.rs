@@ -31,3 +31,12 @@ fn main() -> Result<(), Error> {
     }
     Ok(())
 }
+
+//Use Querystrings for commands? field and value, in vector form
+/*
+TODO:
+Finish settings
+Test with UART only
+Implement tcpip with querystrings for incoming commands
+Write some helper binaries for setting functions
+ */

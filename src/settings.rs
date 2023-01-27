@@ -86,3 +86,10 @@ impl Default for Settings {
         }
     }
 }
+
+/*TODO: Implement following functions:
+Convert to send_bytes
+Update timestamp
+Setters and getters
+Iterators
+*/
