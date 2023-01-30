@@ -64,9 +64,9 @@ pub struct Power {
 #[derive(Serialize, Deserialize, Debug)]
 
 pub struct Metadata {
-    last_changed: [i128; 2],
-    device_name: String,
-    device_location: String
+    pub last_changed: [i128; 2],
+    pub device_name: String,
+    pub device_location: String
 }
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Settings {

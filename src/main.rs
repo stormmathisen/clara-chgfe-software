@@ -13,6 +13,8 @@ const UART_PATH: &str = "/dev/serial0";
 fn main() -> Result<(), Error> {
     println!("Hello, world!");
     let mut settings = settings::Settings {..Default::default()};
+    settings.hack().unwrap();
+    println!("{:?}", settings.meta.last_changed);
     let test_byte:u8 = 0x80;
     let mut test_vector:Vec<u8> = vec![0,1,2,3,4,5];
 
