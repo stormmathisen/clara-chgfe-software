@@ -1,10 +1,12 @@
 pub mod uart;
 pub mod tcpip;
 pub mod settings;
+pub mod debug_terminal;
 
 use std::io::{Error};
 use std::time::{Duration};
 use std::thread::sleep;
+use text_io::read;
 
 const UART_PATH: &str = "/dev/serial0";
 
@@ -13,6 +15,16 @@ fn main() -> Result<(), Error> {
     let mut settings = settings::Settings {..Default::default()};
     let test_byte:u8 = 0x80;
     let mut test_vector:Vec<u8> = vec![0,1,2,3,4,5];
+
+    loop {
+        let input: String = read!();
+        match input.to_lowercase().as_str() {
+            "exit" => {break;},
+            _ => {debug_terminal::decode(input,  &mut settings);}
+        }
+        println!("{:?}", settings);
+    }
+
     let mut fd = uart::setup_uart(UART_PATH, std::time::Duration::from_millis(100), 115200)?;
     let mut count = 0;
     loop {
