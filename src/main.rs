@@ -18,16 +18,19 @@ fn main() -> Result<(), Error> {
     let test_byte:u8 = 0x80;
     let mut test_vector:Vec<u8> = vec![0,1,2,3,4,5];
 
+    let mut fd = uart::setup_uart(UART_PATH, std::time::Duration::from_millis(100), 115200)?;
+
     loop {
         let input: String = read!();
         match input.to_lowercase().as_str() {
             "exit" => {break;},
-            _ => {debug_terminal::decode(input,  &mut settings);}
+            _ => {debug_terminal::decode(input,  &mut settings).unwrap();}
         }
         println!("{:?}", settings);
+        let bytes = settings.to_bytes()?;
+        uart::send_bytes(&mut fd, &bytes)?;
     }
 
-    let mut fd = uart::setup_uart(UART_PATH, std::time::Duration::from_millis(100), 115200)?;
     let mut count = 0;
     loop {
         uart::send_byte(&mut fd, &[test_byte])?;
