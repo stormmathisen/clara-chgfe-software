@@ -15,10 +15,7 @@ struct Payload {
 }
 
 pub fn decode(input: String, settings: &mut super::settings::Settings) -> Result <(), Error> {
-    println!("{:?}", input);
     let payload: Payload = qs::from_str(&input)?;
-
-    println!("{:?}", payload);
 
     match payload.field.to_lowercase().as_str() {
         "calibration.reference" => {
