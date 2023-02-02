@@ -3,9 +3,6 @@ pub mod tcpip;
 pub mod settings;
 pub mod debug_terminal;
 
-use std::io::prelude::*;
-use std::time::{Duration};
-use std::thread::sleep;
 use anyhow::{Context, Result, Error};
 use text_io::read;
 
