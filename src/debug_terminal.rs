@@ -3,11 +3,6 @@ use serde_qs as qs;
 use serde_qs::Error;
 
 
-const SOURCE: u64 = 8261;
-
-const CAL_REF: &str = "CAL_REF";
-
-
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
 struct Payload {
     field: String,
