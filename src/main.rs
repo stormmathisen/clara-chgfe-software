@@ -13,7 +13,6 @@ use std::sync::{
     mpsc::{sync_channel, Receiver, TrySendError, TryRecvError, RecvTimeoutError},
 };
 
-
 const UART_PATH: &str = "/dev/serial0";
 static DONE: AtomicBool = AtomicBool::new(false);
 

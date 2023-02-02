@@ -5,21 +5,21 @@ use std::sync::{
 };
 use anyhow::{Result, Error};
 
-fn handle_stream(s: TcpStream) {
+fn handle_stream(s: TcpStream, data_channel: &mut SyncSender<String>) {
 
 }
 
-fn tcp_listener(data_channel: SyncSender<String>, control_channel: Receiver<bool>) -> Result<(), Error> {
+fn tcp_listener(mut data_channel: SyncSender<String>, control_channel: Receiver<bool>) -> Result<(), Error> {
     let listener = TcpListener::bind("0.0.0.0:56000")?;
     listener.set_nonblocking(true)?;
     
     for stream in listener.incoming() {
         match stream {
             Ok(s) => {
-                handle_stream(s);
+                handle_stream(s, &mut data_channel);
             },
             Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => {
-                continue;
+                
             }
             Err(e) => panic!("IO error while reading stream, {e}")
         }
@@ -28,7 +28,7 @@ fn tcp_listener(data_channel: SyncSender<String>, control_channel: Receiver<bool
                 break;
             },
             Err(e) if e == TryRecvError::Empty => {
-                continue;
+                
             },
             Err(e) => {
                 break;
