@@ -1,9 +1,40 @@
-use std::net::{TcpListener, SocketAddr};
+use std::net::{TcpListener, TcpStream};
 use std::sync::{
     atomic::{AtomicBool, Ordering},
-    mpsc::{sync_channel, Receiver, TrySendError, TryRecvError, RecvTimeoutError},
+    mpsc::{sync_channel, SyncSender, Receiver, TryRecvError},
 };
+use anyhow::{Result, Error};
 
-fn tcp_listener() {
+fn handle_stream(s: TcpStream) {
 
+}
+
+fn tcp_listener(data_channel: SyncSender<String>, control_channel: Receiver<bool>) -> Result<(), Error> {
+    let listener = TcpListener::bind("0.0.0.0:56000")?;
+    listener.set_nonblocking(true)?;
+    
+    for stream in listener.incoming() {
+        match stream {
+            Ok(s) => {
+                handle_stream(s);
+            },
+            Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => {
+                continue;
+            }
+            Err(e) => panic!("IO error while reading stream, {e}")
+        }
+        match control_channel.try_recv() {
+            Ok(_) => {
+                break;
+            },
+            Err(e) if e == TryRecvError::Empty => {
+                continue;
+            },
+            Err(e) => {
+                break;
+            }
+        }
+    }
+
+    Ok(())
 }
