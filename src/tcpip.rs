@@ -1,3 +1,4 @@
+use std::io::Read;
 use std::net::{TcpListener, TcpStream};
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -5,8 +6,15 @@ use std::sync::{
 };
 use anyhow::{Result, Error};
 
-fn handle_stream(s: TcpStream, data_channel: &mut SyncSender<String>) {
-
+fn handle_stream(mut s: TcpStream, data_channel: &mut SyncSender<String>) {
+    let mut buffer:String = String::new();
+    let result = s.read_to_string(&mut buffer);
+    match result {
+        Ok(u) => {
+            
+        },
+        Err(_) => todo!(),
+    }
 }
 
 fn tcp_listener(mut data_channel: SyncSender<String>, control_channel: Receiver<bool>) -> Result<(), Error> {
@@ -15,7 +23,7 @@ fn tcp_listener(mut data_channel: SyncSender<String>, control_channel: Receiver<
     
     for stream in listener.incoming() {
         match stream {
-            Ok(s) => {
+            Ok(mut s) => {
                 handle_stream(s, &mut data_channel);
             },
             Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => {
