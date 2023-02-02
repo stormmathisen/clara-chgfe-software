@@ -22,31 +22,22 @@ fn main() -> Result<(), Error> {
 
     loop {
         let input: String = read!();
+        
         match input.to_lowercase().as_str() {
             "exit" => {break;},
             _ => {debug_terminal::decode(input,  &mut settings).unwrap();}
         }
+
         println!("{:?}", settings);
+
         let bytes = settings.to_bytes()?;
+
+        println!("Broadcasting: {:?}", bytes);
         uart::send_bytes(&mut fd, &bytes)?;
     }
 
-    let mut count = 0;
-    loop {
-        uart::send_byte(&mut fd, &[test_byte])?;
-        
-        sleep(Duration::from_micros(100));
-
-        uart::send_bytes(&mut fd, &test_vector)?;
-
-        sleep(Duration::from_secs(1));
-        count += 1;
-        println!("{}", count);
-        if count > 3600 {
-            break;
-        }
-    }
     Ok(())
+
 }
 
 //Use Querystrings for commands? field and value, in vector form
