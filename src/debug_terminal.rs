@@ -22,7 +22,7 @@ pub fn decode(input: String, settings: &mut super::settings::Settings) -> Result
             match payload.setting.to_lowercase().as_str() {
                 "500mv" | "500" | "0" => {settings.calibration.reference = super::settings::CalibrationReference::REF500mV},
                 "1000mv" | "1000" | "1" => {settings.calibration.reference = super::settings::CalibrationReference::REF1000mV},
-                "2048mv" | "2048" | "3" => {settings.calibration.reference = super::settings::CalibrationReference::REF500mV},
+                "2048mv" | "2048" | "3" => {settings.calibration.reference = super::settings::CalibrationReference::REF2048mV},
                 "4096mv" | "4096" | "4" => {settings.calibration.reference = super::settings::CalibrationReference::REF4096mV},
                 _ => ()
             }
