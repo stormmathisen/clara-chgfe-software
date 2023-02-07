@@ -5,18 +5,25 @@ use std::sync::{
     mpsc::{sync_channel, SyncSender, Receiver, TryRecvError},
 };
 use anyhow::{Result, Error, Context};
+use std::io::{prelude::*, BufReader};
 
 
 fn handle_stream(mut s: TcpStream, settings: &mut super::settings::Settings) {
-    let mut buffer:String = String::new();
-    let result = s.read_to_string(&mut buffer);
-    match result {
-        Ok(u) => {
-            println!("{:?}", buffer);
-            super::debug_terminal::decode(buffer, settings).unwrap();
-            println!("{:?}", settings);
-        },
-        Err(_) => todo!(),
+    let mut buf_reader = BufReader::new(&mut s);
+    loop {
+        let mut line = String::new();
+        let result = buf_reader.read_line(&mut line);
+        match result {
+            Ok(u) if u > 0 => {
+                println!("{:?}", line);
+                super::debug_terminal::decode(line.trim_end_matches("\n").to_string(), settings).unwrap();
+                println!("{:?}", settings);
+            },
+            Ok(u) => {
+                break;
+            }
+            Err(_) => todo!(),
+        }
     }
 }
 
