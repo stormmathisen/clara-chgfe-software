@@ -20,7 +20,7 @@ fn handle_stream(mut s: TcpStream, c: SyncSender<String>) {
                 let result = c.try_send(line.trim_end_matches("\n").to_string());
                 match result {
                     Ok(_) => {
-
+                        println!("Successfully sent to main thread!");
                     }
                     Err(e) if e == TrySendError::Disconnected("".to_string()) => {
                         println!("Channel disconnected");
@@ -30,7 +30,7 @@ fn handle_stream(mut s: TcpStream, c: SyncSender<String>) {
                         println!("Channel full!");
                     }
                     Err(_) => {
-                        println!("Unknown error!")
+                        println!("Unknown error!");
                     }
                 }
             },

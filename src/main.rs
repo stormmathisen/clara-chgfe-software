@@ -36,6 +36,20 @@ fn main() -> Result<(), Error> {
     });
 
     while !DONE.load(Ordering::Relaxed) {
+
+        match data_rx.try_recv() {
+            Ok(data) => {
+                println!("{:?}", data);
+
+            }
+            Err(e) if e == TryRecvError::Disconnected => {
+                
+            }
+            Err(e) => {
+
+            }
+        }
+
         /*let input: String = read!();
 
         match input.to_lowercase().as_str() {
