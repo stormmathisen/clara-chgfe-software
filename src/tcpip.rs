@@ -4,27 +4,30 @@ use std::sync::{
     atomic::{AtomicBool, Ordering},
     mpsc::{sync_channel, SyncSender, Receiver, TryRecvError},
 };
-use anyhow::{Result, Error};
+use anyhow::{Result, Error, Context};
 
-fn handle_stream(mut s: TcpStream, data_channel: &mut SyncSender<String>) {
+
+fn handle_stream(mut s: TcpStream, settings: &mut super::settings::Settings) {
     let mut buffer:String = String::new();
     let result = s.read_to_string(&mut buffer);
     match result {
         Ok(u) => {
-            
+            println!("{:?}", buffer);
+            super::debug_terminal::decode(buffer, settings).unwrap();
         },
         Err(_) => todo!(),
     }
 }
 
-fn tcp_listener(mut data_channel: SyncSender<String>, control_channel: Receiver<bool>) -> Result<(), Error> {
+pub fn tcp_listener(control_channel: Receiver<bool>, mut settings: &mut super::settings::Settings) -> Result<(), Error> {
     let listener = TcpListener::bind("0.0.0.0:56000")?;
     listener.set_nonblocking(true)?;
-    
+    println!("Starting listening");
     for stream in listener.incoming() {
         match stream {
             Ok(mut s) => {
-                handle_stream(s, &mut data_channel);
+                println!("Handling stream");
+                handle_stream(s, &mut settings);
             },
             Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => {
                 
@@ -43,6 +46,6 @@ fn tcp_listener(mut data_channel: SyncSender<String>, control_channel: Receiver<
             }
         }
     }
-
+    println!("Breaking tcpip thread!");
     Ok(())
 }

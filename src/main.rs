@@ -13,6 +13,8 @@ use std::sync::{
     mpsc::{sync_channel, Receiver, TrySendError, TryRecvError, RecvTimeoutError},
 };
 
+use std::thread;
+
 const UART_PATH: &str = "/dev/serial0";
 static DONE: AtomicBool = AtomicBool::new(false);
 
@@ -26,8 +28,14 @@ fn main() -> Result<(), Error> {
 
     let mut fd = uart::setup_uart(UART_PATH, std::time::Duration::from_millis(100), 115200)?;
 
+    let (ctl_tx, ctl_rx) = sync_channel::<bool>(50);
+
+    let tcp_thread = thread::spawn(move|| {
+        tcpip::tcp_listener(ctl_rx, &mut settings).unwrap();
+    });
+
     while !DONE.load(Ordering::Relaxed) {
-        let input: String = read!();
+        /*let input: String = read!();
 
         match input.to_lowercase().as_str() {
             "exit" => {break;},
@@ -39,13 +47,17 @@ fn main() -> Result<(), Error> {
         let bytes = settings.to_bytes()?;
 
         println!("Broadcasting: {:?}", bytes);
-        uart::send_bytes(&mut fd, &bytes)?;
+        uart::send_bytes(&mut fd, &bytes)?;*/
+
         
     }
+    ctl_tx.send(true);
+    tcp_thread.join();
 
     Ok(())
 
 }
+
 
 //Use Querystrings for commands? field and value, in vector form
 /*
