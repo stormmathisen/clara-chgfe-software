@@ -7,7 +7,7 @@ use std::sync::{
 use anyhow::{Result, Error, Context};
 use std::io::{prelude::*, BufReader};
 use std::time::Duration;
-
+use std::thread;
 
 fn handle_stream(mut s: TcpStream, c: SyncSender<String>) {
     s.set_read_timeout(Some(Duration::from_secs(60))).unwrap();
@@ -55,7 +55,11 @@ pub fn tcp_listener(control_channel: Receiver<bool>, data_channel: SyncSender<St
         match stream {
             Ok(mut s) => {
                 println!("Handling stream");
-                handle_stream(s, data_channel.clone());
+                let c = data_channel.clone();
+                thread::spawn(move|| {
+                    handle_stream(s, c);
+                }
+            );
             },
             Err(ref e) if e.kind() == std::io::ErrorKind::WouldBlock => {
                 
