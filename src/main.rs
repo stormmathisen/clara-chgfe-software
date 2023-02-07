@@ -39,7 +39,7 @@ fn main() -> Result<(), Error> {
 
         match data_rx.try_recv() {
             Ok(data) => {
-                println!("{:?}", data);
+                debug_terminal::decode(data,  &mut settings).unwrap();
             }
             Err(e) if e == TryRecvError::Disconnected => {
                 
