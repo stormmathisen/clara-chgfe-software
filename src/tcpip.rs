@@ -14,6 +14,7 @@ fn handle_stream(mut s: TcpStream, settings: &mut super::settings::Settings) {
         Ok(u) => {
             println!("{:?}", buffer);
             super::debug_terminal::decode(buffer, settings).unwrap();
+            println!("{:?}", settings);
         },
         Err(_) => todo!(),
     }
