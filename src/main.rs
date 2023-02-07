@@ -40,7 +40,6 @@ fn main() -> Result<(), Error> {
         match data_rx.try_recv() {
             Ok(data) => {
                 println!("{:?}", data);
-
             }
             Err(e) if e == TryRecvError::Disconnected => {
                 
