@@ -30,9 +30,11 @@ fn main() -> Result<(), Error> {
 
     let (ctl_tx, ctl_rx) = bounded::<bool>(50);
     let (data_tx, data_rx) = bounded::<String>(50);
+    let (data_tx_2, data_rx_2) = bounded::<String>(50);
+
 
     let tcp_thread = thread::spawn(move|| {
-        tcpip::tcp_listener(ctl_rx, data_tx.clone()).unwrap();
+        tcpip::tcp_listener(ctl_rx, data_tx.clone(), data_rx_2).unwrap();
     });
 
     while !DONE.load(Ordering::Relaxed) {

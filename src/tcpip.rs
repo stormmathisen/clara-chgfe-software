@@ -47,7 +47,7 @@ fn handle_stream(mut s: TcpStream, c: Sender<String>) {
     }
 }
 
-pub fn tcp_listener(control_channel: Receiver<bool>, data_channel: Sender<String>) -> Result<(), Error> {
+pub fn tcp_listener(control_channel: Receiver<bool>, data_tx: Sender<String>, data_rx_2: Receiver<String>) -> Result<(), Error> {
     let listener = TcpListener::bind("0.0.0.0:56000")?;
     listener.set_nonblocking(true)?;
     println!("Starting listening");
@@ -55,7 +55,7 @@ pub fn tcp_listener(control_channel: Receiver<bool>, data_channel: Sender<String
         match stream {
             Ok(mut s) => {
                 println!("Handling stream");
-                let c = data_channel.clone();
+                let c = data_tx.clone();
                 thread::spawn(move|| {
                     handle_stream(s, c);
                 }
