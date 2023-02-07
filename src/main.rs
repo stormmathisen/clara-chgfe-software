@@ -4,14 +4,14 @@ pub mod settings;
 pub mod debug_terminal;
 
 use anyhow::{Context, Result, Error};
-use text_io::read;
 
 use ctrlc;
 
 use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    mpsc::{sync_channel, Receiver, TrySendError, TryRecvError, RecvTimeoutError},
+    atomic::{AtomicBool, Ordering}
 };
+
+use crossbeam::channel::{bounded, Sender, SendError, Receiver, TryRecvError};
 
 use std::thread;
 
@@ -28,8 +28,8 @@ fn main() -> Result<(), Error> {
 
     let mut fd = uart::setup_uart(UART_PATH, std::time::Duration::from_millis(100), 115200)?;
 
-    let (ctl_tx, ctl_rx) = sync_channel::<bool>(50);
-    let (data_tx, data_rx) = sync_channel::<String>(50);
+    let (ctl_tx, ctl_rx) = bounded::<bool>(50);
+    let (data_tx, data_rx) = bounded::<String>(50);
 
     let tcp_thread = thread::spawn(move|| {
         tcpip::tcp_listener(ctl_rx, data_tx.clone()).unwrap();

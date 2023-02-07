@@ -1,15 +1,15 @@
 use std::io::Read;
 use std::net::{TcpListener, TcpStream};
 use std::sync::{
-    atomic::{AtomicBool, Ordering},
-    mpsc::{sync_channel, SyncSender, Receiver, TrySendError, TryRecvError},
+    atomic::{AtomicBool, Ordering}
 };
+use crossbeam::channel::{bounded, Sender, TrySendError, Receiver, TryRecvError};
 use anyhow::{Result, Error, Context};
 use std::io::{prelude::*, BufReader};
 use std::time::Duration;
 use std::thread;
 
-fn handle_stream(mut s: TcpStream, c: SyncSender<String>) {
+fn handle_stream(mut s: TcpStream, c: Sender<String>) {
     s.set_read_timeout(Some(Duration::from_secs(60))).unwrap();
     let mut buf_reader = BufReader::new(&mut s);
     loop {
@@ -47,7 +47,7 @@ fn handle_stream(mut s: TcpStream, c: SyncSender<String>) {
     }
 }
 
-pub fn tcp_listener(control_channel: Receiver<bool>, data_channel: SyncSender<String>) -> Result<(), Error> {
+pub fn tcp_listener(control_channel: Receiver<bool>, data_channel: Sender<String>) -> Result<(), Error> {
     let listener = TcpListener::bind("0.0.0.0:56000")?;
     listener.set_nonblocking(true)?;
     println!("Starting listening");
