@@ -1,10 +1,8 @@
-use std::io::Read;
 use std::net::{TcpListener, TcpStream};
-use std::sync::{
-    atomic::{AtomicBool, Ordering}
-};
-use crossbeam::channel::{bounded, Sender, TrySendError, Receiver, TryRecvError};
-use anyhow::{Result, Error, Context};
+
+use crossbeam::channel::{Sender, TrySendError, Receiver, TryRecvError};
+
+use anyhow::{Result, Error};
 use std::io::{prelude::*, BufReader};
 use std::time::Duration;
 use std::thread;
