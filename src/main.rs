@@ -43,6 +43,7 @@ fn main() -> Result<(), Error> {
             Ok(data) => {
                 debug_terminal::decode(data,  &mut settings).unwrap();
                 let js = settings.to_json()?;
+                uart::send_bytes(&mut fd, &settings.to_bytes()?)?;
                 match data_tx_2.try_send(js) {
                     Ok(_) => {
 
