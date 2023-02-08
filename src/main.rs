@@ -3,7 +3,7 @@ pub mod tcpip;
 pub mod settings;
 pub mod debug_terminal;
 
-use anyhow::{Context, Result, Error};
+use anyhow::{Result, Error};
 
 use ctrlc;
 
