@@ -42,6 +42,15 @@ fn main() -> Result<(), Error> {
         match data_rx.try_recv() {
             Ok(data) => {
                 debug_terminal::decode(data,  &mut settings).unwrap();
+                let js = settings.to_json()?;
+                match data_tx_2.try_send(js) {
+                    Ok(_) => {
+
+                    }
+                    Err(e) => {
+                        println!("{:?}", e);
+                    }
+                }
             }
             Err(e) if e == TryRecvError::Disconnected => {
                 
