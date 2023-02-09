@@ -15,7 +15,8 @@ use crossbeam::channel::{bounded, Sender, SendError, Receiver, TryRecvError};
 
 use std::thread;
 
-const UART_PATH: &str = "/dev/serial0";
+const UART1_PATH: &str = "/dev/serial0";
+const UART2_PATH: &str = "/dev/ttyAMA1";
 static DONE: AtomicBool = AtomicBool::new(false);
 
 fn main() -> Result<(), Error> {
@@ -26,7 +27,9 @@ fn main() -> Result<(), Error> {
     settings.hack().unwrap();
     println!("{:?}", settings.meta.last_changed);
 
-    let mut fd = uart::setup_uart(UART_PATH, std::time::Duration::from_millis(100), 115200)?;
+    let mut fd_uart1 = uart::setup_uart(UART1_PATH, std::time::Duration::from_millis(100), 115200)?;
+    let mut fd_uart2 = uart::setup_uart(UART2_PATH, std::time::Duration::from_millis(100), 115200)?;
+
 
     let (ctl_tx, ctl_rx) = bounded::<bool>(50);
     let (data_tx, data_rx) = bounded::<String>(50);
@@ -43,7 +46,10 @@ fn main() -> Result<(), Error> {
             Ok(data) => {
                 debug_terminal::decode(data,  &mut settings).unwrap();
                 let js = settings.to_json()?;
-                uart::send_bytes(&mut fd, &settings.to_bytes()?)?;
+                uart::send_bytes(&mut fd_uart1, &settings.to_bytes()?)?;
+                let level: u8 = settings.calibration.level;
+                println!("Printing {level}");
+                uart::send_byte(&mut fd_uart2, &[level])?;
                 match data_tx_2.try_send(js) {
                     Ok(_) => {
 
