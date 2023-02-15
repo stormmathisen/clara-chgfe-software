@@ -44,18 +44,32 @@ fn main() -> Result<(), Error> {
 
         match data_rx.try_recv() {
             Ok(data) => {
-                debug_terminal::decode(data,  &mut settings).unwrap();
-                let js = settings.to_json()?;
-                uart::send_bytes(&mut fd_uart1, &settings.to_bytes()?)?;
-                let level: u8 = settings.calibration.level;
-                println!("Printing {level}");
-                uart::send_byte(&mut fd_uart2, &[level])?;
-                match data_tx_2.try_send(js) {
+                //debug_terminal::decode(data,  &mut settings).unwrap();
+                match settings.from_json(&data) {
                     Ok(_) => {
-
+                        let js = settings.to_json()?;
+                        uart::send_bytes(&mut fd_uart1, &settings.to_bytes()?)?;
+                        let level: u8 = settings.calibration.level;
+                        println!("Printing {level}");
+                        uart::send_byte(&mut fd_uart2, &[level])?;
+                        match data_tx_2.try_send(js) {
+                            Ok(_) => {
+        
+                            }
+                            Err(e) => {
+                                println!("{:?}", e);
+                            }
+                        }        
                     }
-                    Err(e) => {
-                        println!("{:?}", e);
+                    Err(_) => {
+                        match data_tx_2.try_send("Error, not valid JSON".to_string()) {
+                            Ok(_) => {
+        
+                            }
+                            Err(e) => {
+                                println!("{:?}", e);
+                            }
+                        }
                     }
                 }
             }

@@ -1,6 +1,8 @@
 import streamlit as st
 import socket
+from settings import Settings
 
+settings = Settings()
 
 st.title(
     "Charge Front End Control"
@@ -9,14 +11,40 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     st.header("I/O settings")
-    st.subheader("Input")
+
     io_input = st.radio(
         "Input",
         ("Charge device", "Calibration", "Alternative input"),
         key = "io_input"
     )
-    st.subheader("Output")
-    st.subheader("DC Offset")
+    if io_input == "Charge device":
+        settings.set_io_input("EXT")
+    elif io_input == "Calibration":
+        settings.set_io_input("CAL")
+    elif io_input == "Alternative input":
+        settings.set_io_input("ALT")
+
+    io_output = st.radio(
+        "Output",
+        ("Terminated", "Local"),
+        key = "io_output"
+    )
+    if io_output == "Terminated":
+        settings.set_io_output("TERM")
+    elif io_output == "Local":
+        settings.set_io_output("LOCAL")
+
+    io_offset = st.radio(
+        "DC Offset",
+        ("Low", "High", "Manual"),
+        key = "io_offset"
+    )
+    if io_offset == "Low":
+        settings.set_io_reference("REF500mV")
+    elif io_offset == "High":
+        settings.set_io_reference("REF1000mV")
+    elif io_offset == "Manual":
+        settings.set_io_reference("REFMANUAL")
 
 with col2:
     st.header("Calibration settings")
