@@ -53,17 +53,24 @@ with col2:
         ("500 mV", "1000 mV", "2048 mV", "4096 mV"),
         key = "cal_ref_select",
     )
-    st.subheader("Calibration level")
-    level = st.text_input(
-        'Calibration level',
-        value='128',
-        key='cal_level')
-    if int(level) > 255:
-        st.warning("Level has to be between 0 and 255")
-        level = '255'
-    elif int(level) < 0:
-        st.warning("Level has to be between 0 and 255")
-        level = '0'
+    if cal_ref_select == "500 mV":
+        settings.set_calibration_reference("REF500mV")
+    elif cal_ref_select == "1000 mV":
+        settings.set_calibration_reference("REF1000mV")
+    elif cal_ref_select == "2048 mV":
+        settings.set_calibration_reference("REF2048mV")
+    elif cal_ref_select == "4096 mV":
+        settings.set_calibration_reference("REF4096mV")
+
+    level = st.number_input(
+        label="Calibration level",
+        min_value=0,
+        max_value=255,
+        value=128,
+        step=1,
+        key="cal_level"
+    )
+    settings.set_calibration_level(level)
 
     st.subheader("Trigger decimation")
     st.subheader("Trigger offset")
@@ -75,6 +82,8 @@ with col3:
         ("FB0", "FB1", "FB2", "FB3", "FB4", "FB5"),
         key = "sensitivity_setting"
     )
+    settings.set_integrator(sensitivity_setting)
+
     st.header("Other settings")
     st.subheader("Positive rail")
     st.subheader("Negative rail")
@@ -84,43 +93,10 @@ with st.sidebar:
     ip = st.text_input("IP", value="192.168.83.84")
     port = st.text_input("PORT", value = "56000")
 
-def sendMessage(ip, port, message):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((ip, int(port)))
-        s.sendall(bytes(message, "utf-8"))
-        return s.recv(4096)
-
-if cal_ref_select == "500 mV":
-    st.session_state['recv'] = sendMessage(ip, port, "field=calibration.reference&setting=500mv\n")
-elif cal_ref_select == "1000 mV":
-    st.session_state['recv'] = sendMessage(ip, port, "field=calibration.reference&setting=1000mv\n")
-elif cal_ref_select == "2048 mV":
-    st.session_state['recv'] = sendMessage(ip, port, "field=calibration.reference&setting=2048mv\n")
-elif cal_ref_select == "4096 mV":
-    st.session_state['recv'] = sendMessage(ip, port, "field=calibration.reference&setting=4096mv\n")
-
-st.session_state['recv'] = sendMessage(ip, port, "field=calibration.level&setting="+level+"\n")
-
-if sensitivity_setting == "FB0":
-    st.session_state['recv'] = sendMessage(ip, port, "field=integrator&setting=fb0\n")
-elif sensitivity_setting == "FB1":
-    st.session_state['recv'] = sendMessage(ip, port, "field=integrator&setting=fb1\n")
-elif sensitivity_setting == "FB2":
-    st.session_state['recv'] = sendMessage(ip, port, "field=integrator&setting=fb2\n")
-elif sensitivity_setting == "FB3":
-    st.session_state['recv'] = sendMessage(ip, port, "field=integrator&setting=fb3\n")
-elif sensitivity_setting == "FB4":
-    st.session_state['recv'] = sendMessage(ip, port, "field=integrator&setting=fb4\n")
-elif sensitivity_setting == "FB5":
-    st.session_state['recv'] = sendMessage(ip, port, "field=integrator&setting=fb5\n")
-
-if io_input == "Charge device":
-    st.session_state['recv'] = sendMessage(ip, port, "field=io.input&setting=ext\n")
-elif io_input == "Calibration":
-    st.session_state['recv'] = sendMessage(ip, port, "field=io.input&setting=cal\n")
-elif io_input == "Alternative input":
-    st.session_state['recv'] = sendMessage(ip, port, "field=io.input&setting=alt\n")
-
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.connect((ip, int(port)))
+    s.sendall(bytes(settings.to_json()+"\n", "utf-8"))
+    st.session_state.recv = s.recv(4096)
 
 if 'recv' in st.session_state:
     st.json(st.session_state.recv.decode('utf-8'), expanded=False)
