@@ -2,7 +2,10 @@ import streamlit as st
 import socket
 from settings import Settings
 
-settings = Settings()
+if 'settings' in st.session_state:
+    pass
+else:
+    st.session_state['settings'] = Settings()
 
 st.title(
     "Charge Front End Control"
@@ -18,11 +21,11 @@ with col1:
         key = "io_input"
     )
     if io_input == "Charge device":
-        settings.set_io_input("EXT")
+        st.session_state['settings'].set_io_input("EXT")
     elif io_input == "Calibration":
-        settings.set_io_input("CAL")
+        st.session_state['settings'].set_io_input("CAL")
     elif io_input == "Alternative input":
-        settings.set_io_input("ALT")
+        st.session_state['settings'].set_io_input("ALT")
 
     io_output = st.radio(
         "Output",
@@ -30,9 +33,9 @@ with col1:
         key = "io_output"
     )
     if io_output == "Terminated":
-        settings.set_io_output("TERM")
+        st.session_state['settings'].set_io_output("TERM")
     elif io_output == "Local":
-        settings.set_io_output("LOCAL")
+        st.session_state['settings'].set_io_output("LOCAL")
 
     io_offset = st.radio(
         "DC Offset",
@@ -40,11 +43,11 @@ with col1:
         key = "io_offset"
     )
     if io_offset == "Low":
-        settings.set_io_reference("REF500mV")
+        st.session_state['settings'].set_io_reference("REF500mV")
     elif io_offset == "High":
-        settings.set_io_reference("REF1000mV")
+        st.session_state['settings'].set_io_reference("REF1000mV")
     elif io_offset == "Manual":
-        settings.set_io_reference("REFMANUAL")
+        st.session_state['settings'].set_io_reference("REFMANUAL")
 
 with col2:
     st.header("Calibration settings")
@@ -54,13 +57,13 @@ with col2:
         key = "cal_ref_select",
     )
     if cal_ref_select == "500 mV":
-        settings.set_calibration_reference("REF500mV")
+        st.session_state['settings'].set_calibration_reference("REF500mV")
     elif cal_ref_select == "1000 mV":
-        settings.set_calibration_reference("REF1000mV")
+        st.session_state['settings'].set_calibration_reference("REF1000mV")
     elif cal_ref_select == "2048 mV":
-        settings.set_calibration_reference("REF2048mV")
+        st.session_state['settings'].set_calibration_reference("REF2048mV")
     elif cal_ref_select == "4096 mV":
-        settings.set_calibration_reference("REF4096mV")
+        st.session_state['settings'].set_calibration_reference("REF4096mV")
 
     level = st.number_input(
         label="Calibration level",
@@ -70,7 +73,7 @@ with col2:
         step=1,
         key="cal_level"
     )
-    settings.set_calibration_level(level)
+    st.session_state['settings'].set_calibration_level(level)
 
     st.subheader("Trigger decimation")
     st.subheader("Trigger offset")
@@ -82,7 +85,7 @@ with col3:
         ("FB0", "FB1", "FB2", "FB3", "FB4", "FB5"),
         key = "sensitivity_setting"
     )
-    settings.set_integrator(sensitivity_setting)
+    st.session_state['settings'].set_integrator(sensitivity_setting)
 
     st.header("Other settings")
     st.subheader("Positive rail")
@@ -95,7 +98,7 @@ with st.sidebar:
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.connect((ip, int(port)))
-    s.sendall(bytes(settings.to_json()+"\n", "utf-8"))
+    s.sendall(bytes(st.session_state['settings'].to_json()+"\n", "utf-8"))
     st.session_state.recv = s.recv(4096)
 
 if 'recv' in st.session_state:
