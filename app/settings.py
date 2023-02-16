@@ -60,14 +60,14 @@ class Settings:
             return False
 
     def set_calibration_level(self, level):
-        if level > 0 and level < 256:
+        if level >= 0 and level < 256:
             self.settings['calibration']['level'] = level
             return True
         else:
             return False
     
     def set_calibration_trigger(self, trigger):
-        if trigger > 0 and trigger < 256:
+        if trigger >= 0 and trigger < 256:
             self.settings['calibration']['trigger'] = trigger
             return True
         else:
@@ -75,7 +75,7 @@ class Settings:
 
 
     def set_calibration_offset(self, offset):
-        if offset > 0 and offset < 65536:
+        if offset >= 0 and offset < 65536:
             self.settings['calibration']['offset'] = offset
             return True
         else:

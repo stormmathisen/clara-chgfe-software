@@ -13,7 +13,7 @@ st.title(
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.header("I/O settings")
+    st.subheader("I/O settings")
 
     io_input = st.radio(
         "Input",
@@ -50,7 +50,7 @@ with col1:
         st.session_state['settings'].set_io_reference("REFMANUAL")
 
 with col2:
-    st.header("Calibration settings")
+    st.subheader("Calibration settings")
     cal_ref_select = st.radio(
         "Calibration reference",
         ("500 mV", "1000 mV", "2048 mV", "4096 mV"),
@@ -75,11 +75,20 @@ with col2:
     )
     st.session_state['settings'].set_calibration_level(level)
 
-    st.subheader("Trigger decimation")
+    cal_trigger = st.number_input(
+        label="Calibration decimation",
+        min_value=0,
+        max_value=255,
+        value=0,
+        step=1,
+        key="cal_trigger"
+    )
+    st.session_state['settings'].set_calibration_trigger(cal_trigger)
     st.subheader("Trigger offset")
 
 
 with col3:
+    st.subheader("Other settings")
     sensitivity_setting = st.radio(
         "Sensitivity setting",
         ("FB0", "FB1", "FB2", "FB3", "FB4", "FB5"),
@@ -87,7 +96,6 @@ with col3:
     )
     st.session_state['settings'].set_integrator(sensitivity_setting)
 
-    st.header("Other settings")
     st.subheader("Positive rail")
     st.subheader("Negative rail")
     st.subheader("Integrator enable")
