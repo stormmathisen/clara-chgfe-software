@@ -156,27 +156,10 @@ impl Settings {
         Ok(())
     }
     pub fn to_json(&mut self) -> Result<String, serde_json::Error> {
-        let json_str = serde_json::to_string(self);
-        match json_str {
-            Ok(j) => {
-                Ok(j)
-            }
-            Err(e) => {
-                return Err(e)
-            }
-        }
+        Ok(serde_json::to_string(self)?)
     }
     pub fn from_json(&mut self, s: &str) -> Result<(), serde_json::Error> {
-        let j = serde_json::from_str(s);
-        match j {
-            Ok(j) => {
-                *self = j;
-            }
-            Err(e) => {
-                return Err(e)
-            }
-        }
-        Ok(())
+        Ok(serde_json::from_str(s)?)
     }
 }
 
