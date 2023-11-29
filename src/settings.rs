@@ -1,5 +1,5 @@
-use std::string;
 use serde::{Serialize, Deserialize};
+use serde_json;
 use std::io::Error;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -155,7 +155,14 @@ impl Settings {
         ];
         Ok(())
     }
+    pub fn to_json(&mut self) -> Result<String, serde_json::Error> {
+        Ok(serde_json::to_string(self)?)
+    }
+    pub fn from_json(&mut self, s: &str) -> Result<(), serde_json::Error> {
+        Ok(serde_json::from_str(s)?)
+    }
 }
+
 
 impl Default for Settings {
     fn default() -> Settings {
