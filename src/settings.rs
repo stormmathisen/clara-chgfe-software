@@ -158,9 +158,15 @@ impl Settings {
     pub fn to_json(&mut self) -> Result<String, serde_json::Error> {
         Ok(serde_json::to_string(self)?)
     }
-    pub fn from_json(&mut self, s: &str) -> Result<Settings, serde_json::Error> {
+    pub fn from_json(&mut self, s: &str) -> Result<(), serde_json::Error> {
         let v: Settings = serde_json::from_str(s)?;
-        Ok(v)
+        self.calibration = v.calibration;
+        self.io = v.io;
+        self.integrator = v.integrator;
+        self.power = v.power;
+        self.meta = v.meta;
+
+        Ok(())
     }
 }
 
