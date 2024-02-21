@@ -7,16 +7,14 @@ use anyhow::{Result, Error};
 
 use ctrlc;
 
-use std::sync::{
-    atomic::{AtomicBool, Ordering}
-};
+use std::{f32::consts::E, sync::atomic::{AtomicBool, Ordering}};
 
 use crossbeam::channel::{bounded, Sender, SendError, Receiver, TryRecvError};
 
 use std::thread;
 
-const UART1_PATH: &str = "/dev/serial0";
-const UART2_PATH: &str = "/dev/ttyAMA1";
+const UART1_PATH: &str = "/dev/ttyAMA0";
+const UART2_PATH: &str = "/dev/ttyAMA2";
 static DONE: AtomicBool = AtomicBool::new(false);
 
 fn main() -> Result<(), Error> {
@@ -45,7 +43,7 @@ fn main() -> Result<(), Error> {
         match data_rx.try_recv() {
             Ok(data) => {
                 //debug_terminal::decode(data,  &mut settings).unwrap();
-                match settings.from_json(&data) {
+                match settings.from_json(&data.as_str()) {
                     Ok(_) => {
                         let js = settings.to_json()?;
                         uart::send_bytes(&mut fd_uart1, &settings.to_bytes()?)?;
@@ -61,7 +59,11 @@ fn main() -> Result<(), Error> {
                             }
                         }        
                     }
-                    Err(_) => {
+                    Err(e) => {
+                        println!("Error in decoding");
+                        println!("{:?}", e);
+                        println!("{:?}", data);
+                        println!("{:?}", settings.to_json().unwrap());
                         match data_tx_2.try_send("Error, not valid JSON".to_string()) {
                             Ok(_) => {
         

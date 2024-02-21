@@ -34,7 +34,7 @@ class Settings:
         }
 
     def to_json(self):
-        return json.dumps(self.settings)
+        return json.dumps(self.settings, separators=(',', ':'))
     
     def from_json(self, j):
         try:
@@ -169,11 +169,11 @@ if __name__ == "__main__":
     settings.settings["calibration"]["reference"] = "REF1000mV"
     print(settings.to_json())
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect(("192.168.83.84", 56000))
+        s.connect(("192.168.93.13", 56000))
         s.sendall(bytes(settings.to_json()+"\n", "utf-8"))
         recv = s.recv(4096)
         try:
             print(json.loads(recv.decode("utf-8")))
         except json.decoder.JSONDecodeError:
             print(recv.decode("utf-8"))
-        print(settings.settings)
+        #print(settings.settings)
